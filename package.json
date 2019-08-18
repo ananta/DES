@@ -1,0 +1,14 @@
+{
+  "name": "des",
+  "version": "1.0.0",
+  "description": "Project Related to Basic DES Algorithm.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ananta Bastola",
+  "license": "ISC",
+  "dependencies": {
+    "readline": "^1.3.0"
+  }
+}

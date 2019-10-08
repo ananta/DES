@@ -54,8 +54,13 @@ function chunk(array, size) {
   return chunked_arr;
 }
 
+const logger = (name, value) => {
+  console.log(`${name}: ${value} (${value.length}bits) \n`);
+};
+
 module.exports = {
   hexToBinary,
   leftShift,
-  chunk
+  chunk,
+  logger
 };

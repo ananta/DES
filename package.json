@@ -8,7 +8,5 @@
   },
   "author": "Ananta Bastola",
   "license": "ISC",
-  "dependencies": {
-    "readline": "^1.3.0"
-  }
+  "dependencies": {}
 }

@@ -1,4 +1,4 @@
-const { hexToBinary, leftShift, logger } = require("./utils");
+const { hexToBinary, leftShift, logger, convertBintoHex } = require("./utils");
 const { DESfunction } = require("./DES");
 
 // Test Input According to the sampled example
@@ -102,13 +102,6 @@ for (i = 1; i <= 16; i++) {
 const ReverseToRL = rOld.toString() + lOld.toString();
 const _rev = ReverseToRL.split("");
 const finalMessage = KEYS.IPInverse.map(item => _rev[item - 1]).join("");
-logger("Final Message", finalMessage);
-console.log(finalMessage);
-// TODO
-console.log(
-  parseInt(finalMessage, 2)
-    .toString(16)
-    .toUpperCase()
-);
 
+logger("Final Message", convertBintoHex(finalMessage));
 process.exit();

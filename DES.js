@@ -1,4 +1,4 @@
-const { hexToBinary, leftShift, chunk } = require("./utils");
+const { chunk, logger } = require("./utils");
 
 const S = {
   s1: [
@@ -50,60 +50,29 @@ const S = {
     [2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11]
   ]
 };
+// prettier-ignore
 const P = [
-  16,
-  7,
-  20,
-  21,
-  29,
-  12,
-  28,
-  17,
-  1,
-  15,
-  23,
-  26,
-  5,
-  18,
-  31,
-  10,
-  2,
-  8,
-  24,
-  14,
-  32,
-  27,
-  3,
-  9,
-  19,
-  13,
-  30,
-  6,
-  22,
-  11,
-  4,
-  25
-];
+  16, 7,20,21,29,12,28,17,1,15,23,26,5,18,31,10,2,8,24,14,32,27,3,9,19,13,30,6,22,11,4,25];
 
 function DESfunction(lOld, rOld, roundKey) {
-  // console.log(expandTo48bit(rOld));
-  // console.log("L0");
-  // console.log(lOld);
-  // console.log("R0");
-  // console.log(rOld);
-  // find rNew
+  console.log(
+    "****************************************\n For Generating LNew \n"
+  );
+  logger("LNew = ROld", rOld);
 
-  // console.log("E(R0)");
+  console.log(
+    "****************************************\n For Generating RNew\n"
+  );
   const eOFR = expandTo48bit(rOld);
-  // console.log(eOFR);
+  logger("Expanding ROld to 48 bit", eOFR);
 
   const rNew = xOR(roundKey, eOFR, "48");
-  // divide into 8 groups of 6 bits
+  logger("XOR with the round key", rNew);
 
-  // console.log("NEW R");
-  // console.log("Splitted Rnew");
+  // divide into 8 groups of 6 bits
   const splittedRNew = arraySplitter(rNew, 8, true);
-  // console.log(splittedRNew);
+  logger("Divide into 8 groups", splittedRNew);
+
   const kpluse = splittedRNew.map((item, _index) => {
     const _row = parseInt(item[0].toString() + item[5].toString(), 2);
     const _column = parseInt(
@@ -116,49 +85,32 @@ function DESfunction(lOld, rOld, roundKey) {
     // console.log(`Row Item: ${_row}`);
     // console.log(`Column Item: ${_column}`);
     const SofIndex = S[`s${_index + 1}`];
-    // console.log(S.s1);
-    // console.log(SofIndex);
     const SofB = SofIndex[_row][_column];
-    // console.log(SofB);
-    // console.log("To Binary");
     const _SofB = parseInt(SofB, 10).toString(2);
     const SofBtoD = "0".repeat(parseInt(4) - _SofB.length) + _SofB;
-    // console.log("Converted to 4 bits");
+    logger("Converting part " + _index + " to 4 bits", SofBtoD);
     return SofBtoD;
   });
+  logger("K + E(R)", kpluse.join(""));
   // console.log("K + E(R1)");
   // console.log(kpluse.join(""));
   const _bits = kpluse.join("").split("");
   const permutedMessage = P.map(item => _bits[item - 1]).join("");
-  // console.log("FINAL PERMUTEDDDD");
-  // console.log(permutedMessage);
-  // rnew = lold + permutedMes
-
   const rNEEW = xOR(lOld, permutedMessage, 32);
-
-  // const permutedP = kpluse.map(
-  //   key => messageInBinary[key - 1]
-  // ).join("");
-  // now permutation is required
-
-  // console.log("LNew");
-  // console.log(rOld);
-  // console.log("RNew");
-  // console.log(rNEEW);
+  logger("RNew", rNEEW);
   return {
     lnew: rOld,
     rnew: rNEEW
   };
 }
 
+// function to split array into equal halves
 const arraySplitter = (a, n, balanced) => {
   if (n < 2) return [a];
-
   var len = a.length,
     out = [],
     i = 0,
     size;
-
   if (len % n === 0) {
     size = Math.floor(len / n);
     while (i < len) {
@@ -178,14 +130,11 @@ const arraySplitter = (a, n, balanced) => {
     }
     out.push(a.slice(size * n));
   }
-
   return out;
 };
 
+// function to XOR two values a & b
 function xOR(a, b, bits) {
-  // console.log("RoundKEy " + a);
-  // console.log("Expanded " + b);
-  // console.log("Bits" + bits);
   const _a = a.toString().split("");
   const _b = b.toString().split("");
   const xorBits = _a.map((aItem, i) => {
@@ -194,12 +143,9 @@ function xOR(a, b, bits) {
   });
   const _xorBits = xorBits.join("");
   return "0".repeat(parseInt(bits) - _xorBits.length) + _xorBits;
-  // const res = (parseInt(a) ^ parseInt(b)) >>> 0;
-  // console.log("RES");
-  // console.log(res);
-  // return "0".repeat(parseInt(bits) - res.length) + res;
 }
 
+// function to expand to 48bits
 function expandTo48bit(R) {
   const fourBitsChunk = chunk(R.split(""), 4);
   let final = [];
@@ -228,6 +174,7 @@ function expandTo48bit(R) {
     .split(",")
     .join("");
 }
+
 module.exports = {
   DESfunction
 };

@@ -1,7 +1,10 @@
-const readline = require("readline");
-const { hexToBinary, leftShift } = require("./utils");
+const { hexToBinary, leftShift, logger } = require("./utils");
 const { DESfunction } = require("./DES");
-var input = readline.createInterface(process.stdin, process.stdout);
+
+// Test Input According to the sampled example
+const _input = "133457799BBCDFF1";
+const message = "0123456789ABCDEF";
+
 const KEYS = {
   // prettier-ignore
   PC1: [
@@ -29,60 +32,56 @@ const KEYS = {
   ],
   // prettier-ignore
   IPInverse: [
-    40,     8,   48,    16,    56,   24,    64,   32,
-    39,     7,   47,    15,    55,   23,    63,   31,
-    38,     6,   46,    14,    54,   22,    62,   30,
-    37,     5,   45,    13,    53,   21,    61,   29,
-    36,     4,   44,    12,    52,   20,    60,   28,
-    35,     3,   43,    11,    51,   19,    59,   27,
-    34,     2,   42,    10,    50,   18,    58,   26,
-    33,     1,   41,     9,    49,   17,    57,   25
+    40,8,48,16,56,24,64,32,39,7,47,15,
+    55,23,63,31,38,6,46,14,54,22,62,30,
+    37,5,45,13,53,21,61,29,36,4,44,12,
+    52,20,60,28,35,3,43,11,51,19,59,27,
+    34,2,42,10,50,18,58,26,33,1,41,9,
+    49,17,57,25
   ]
 };
-const _input = "133457799BBCDFF1";
-const message = "0123456789ABCDEF";
+
 const messageInBinary = hexToBinary(message);
+logger("Message In Binary", messageInBinary);
+
 const InitialPermutationMessage = KEYS.IP.map(
   key => messageInBinary[key - 1]
 ).join("");
-console.log("Permuted Message \n" + InitialPermutationMessage);
+logger("Permuted Message", InitialPermutationMessage);
+
 const L0 = InitialPermutationMessage.slice(
   0,
   InitialPermutationMessage.length / 2
 );
+logger("L0", L0);
+
 const R0 = InitialPermutationMessage.slice(
   InitialPermutationMessage.length / 2,
   InitialPermutationMessage.length
 );
+logger("R0", R0);
 
-// console.log("L0: " + L0);
-// console.log("R0: " + R0);
-// console.log("\nProvided Message: ");
-// console.log(message);
+console.log("*****GENERATION OF ROUNDKEYS****\n");
 
-// console.log("\nMessage In Binary: ");
-// console.log(messageInBinary);
-
-// // input.question("Please Provide 64bit Key in Hex \n", __input => {
-// console.log(`Provided 64bit Hex Key: ${_input}`);
-
-//*************************************************************STEP 1*************************************************************** */
 const K = hexToBinary(_input);
-1;
-// console.log(`\nK = ${K} `);
+logger("K", K);
+
 const K_Plus = KEYS.PC1.map(key => K[key - 1]).join("");
-// console.log(`K+ = ${K_Plus} \n`);
+logger("K Plus", K_Plus);
+
 const C0 = K_Plus.slice(0, K_Plus.length / 2);
+logger("C0", C0);
+
 const D0 = K_Plus.slice(K_Plus.length / 2, K_Plus.length);
-//   console.log(`C0: ${C0}, D0: ${D0}`);
+logger("D0", D0);
+
 let tmpC, tmpD;
 tmpC = C0;
 tmpD = D0;
 let lOld, rOld;
 lOld = L0;
 rOld = R0;
-// console.log("L0: " + lOld);
-// console.log("R0: " + rOld);
+
 for (i = 1; i <= 16; i++) {
   if (i == 1 || i == 2 || i == 9 || i == 16) {
     tmpC = leftShift(tmpC, 1);
@@ -93,28 +92,23 @@ for (i = 1; i <= 16; i++) {
   }
   let tmpKey = tmpC + tmpD;
   const tmpRoundKey = KEYS.PC2.map(key => tmpKey[key - 1]).join("");
-  // console.log(`Round Key ${i}: ${tmpRoundKey}`);
-
-  //*************************************************************STEP 2*************************************************************** */
+  logger("Round Key " + i, tmpRoundKey);
   const newLR = DESfunction(lOld, rOld, tmpRoundKey);
-  // console.log("L" + i + ": " + newLR.lnew);
-  // console.log("R" + i + ": " + newLR.rnew);
-  // console.log(`L${i} ${newLR.lnew}`);
+  logger("L" + i, newLR.lnew);
+  logger("R" + i, newLR.rnew);
   lOld = newLR.lnew;
   rOld = newLR.rnew;
 }
 const ReverseToRL = rOld.toString() + lOld.toString();
 const _rev = ReverseToRL.split("");
-console.log(ReverseToRL);
-
 const finalMessage = KEYS.IPInverse.map(item => _rev[item - 1]).join("");
+logger("Final Message", finalMessage);
 console.log(finalMessage);
+// TODO
 console.log(
   parseInt(finalMessage, 2)
     .toString(16)
     .toUpperCase()
 );
-//   input.close();
-// });
 
 process.exit();

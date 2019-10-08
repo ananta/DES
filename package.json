@@ -4,7 +4,7 @@
   "description": "Project Related to Basic DES Algorithm.",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
   "author": "Ananta Bastola",
   "license": "ISC",

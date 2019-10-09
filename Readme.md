@@ -17,12 +17,13 @@ A step by step series of examples that tell you how to get a development env run
 Clone this repo
 
 ```
-git clone https://github.com/ananta/DES
+git clone https://github.com/ananta/DES DES
 ```
 
 And run the project using
 
 ```
+cd DES
 npm start
 ```
 
